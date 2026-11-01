@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Panel de la Arepera</title>
+<meta name="theme-color" content="#FFF7DD" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1C130B" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap">
+<style>
+/* Layout: panel de una columna para el teléfono de la arepera — entrada con contraseña, cuadrícula de productos con interruptor y barra de guardar fija abajo */
+:root{
+  --bg:#FFF7DD;
+  --panel:#FFFFFF;
+  --ink:#3A2414;
+  --muted:#7A5E46;
+  --line:#EEDFB6;
+  --chip:#FFF0C2;
+  --toast:#B8732A;
+  --leaf:#2F8F4E;
+  --leaf-deep:#1F6B39;
+  --leaf-ink:#FFFFFF;
+  --chili:#D9472B;
+  --display:"Baloo 2","Trebuchet MS",system-ui,sans-serif;
+  --body:"Nunito","Segoe UI",system-ui,sans-serif;
+  color-scheme:light;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#1C130B;--panel:#2A1D12;--ink:#FCEBC8;--muted:#C9AE8C;--line:#47321F;--chip:#3A2918;
+  --toast:#E7A257;--leaf:#55C27A;--leaf-deep:#2F8F4E;--leaf-ink:#0E2414;--chili:#F27258;color-scheme:dark}}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.4;-webkit-tap-highlight-color:transparent;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 0}
+h1,h2,h3,p{margin:0}
+h1,h2{font-family:var(--display);line-height:1;text-wrap:balance}
+button{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible{outline:3px solid var(--leaf);outline-offset:3px}
+
+.admin{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.admin-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.eyebrow{color:var(--toast);font-weight:800;font-size:.78rem;text-transform:uppercase;letter-spacing:.07em}
+.admin-head h1{font-size:1.9rem;margin-top:2px}
+.head-actions{display:flex;gap:8px}
+.pill{color:var(--ink);font-weight:800;text-decoration:none;border:2px solid var(--line);border-radius:999px;padding:8px 14px;background:var(--panel);white-space:nowrap;cursor:pointer}
+.card{background:var(--panel);border:2px solid var(--line);border-radius:22px;padding:18px}
+.card form{display:flex;flex-direction:column;gap:8px}
+.card h2{font-size:1.4rem}
+.card form > p{color:var(--muted);margin-bottom:4px}
+label{font-weight:800;font-size:.9rem;margin-top:6px}
+input{font:inherit;padding:12px 14px;border-radius:14px;border:2px solid var(--line);background:var(--bg);color:var(--ink);width:100%}
+input:focus-visible{outline:3px solid var(--leaf);outline-offset:1px}
+.btn{border:0;border-radius:999px;padding:13px 22px;font-weight:800;cursor:pointer;background:var(--leaf);color:var(--leaf-ink);box-shadow:0 4px 0 var(--leaf-deep)}
+.btn:active{transform:translateY(2px);box-shadow:0 2px 0 var(--leaf-deep)}
+.btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none;transform:none}
+.card form .btn{margin-top:8px}
+.err{color:var(--chili);font-weight:800;min-height:1.3em}
+
+#panel{display:flex;flex-direction:column;gap:12px}
+.msg{font-weight:800;color:var(--leaf)}
+.msg:empty{display:none}
+.msg.bad{color:var(--chili)}
+.help{color:var(--muted);font-size:.92rem}
+.summary{display:flex;gap:8px;flex-wrap:wrap}
+.summary span{background:var(--panel);border:2px solid var(--line);border-radius:999px;padding:4px 12px;font-weight:800;font-size:.85rem;font-variant-numeric:tabular-nums}
+.summary .bad{border-color:var(--chili);color:var(--chili)}
+.group{font:800 1.1rem var(--display);margin:8px 2px 0}
+.stock-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+@media (min-width:640px){.stock-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.stock{position:relative;display:grid;grid-template-columns:44px minmax(0,1fr) auto;grid-template-rows:auto auto;column-gap:12px;align-items:center;text-align:left;
+  min-height:62px;padding:8px 12px;border-radius:16px;border:2px solid var(--line);background:var(--panel);cursor:pointer;transition:background-color .2s,border-color .2s}
+.stock .sth{grid-row:1 / 3;width:44px;height:42px;display:flex;align-items:flex-end;justify-content:center}
+.stock .sth img{width:100%;height:100%;object-fit:contain;object-position:50% 100%}
+.stock .sname{grid-column:2;font-weight:800;font-size:.95rem;line-height:1.15;overflow-wrap:anywhere}
+.stock .sstate{grid-column:2;font-size:.8rem;font-weight:800;color:var(--leaf)}
+.stock .knob{grid-column:3;grid-row:1 / 3;position:relative;width:42px;height:26px;border-radius:13px;background:var(--leaf);transition:background-color .2s}
+.stock .knob::after{content:"";position:absolute;top:3px;left:19px;width:20px;height:20px;border-radius:50%;background:var(--panel);transition:left .2s}
+.stock.is-out{background:var(--chip);border-color:var(--chili);border-style:dashed}
+.stock.is-out .sstate{color:var(--chili)}
+.stock.is-out .knob{background:var(--line)}
+.stock.is-out .knob::after{left:3px}
+.stock.is-out .sth img{filter:grayscale(1);opacity:.6}
+.stock.changed::before{content:"";position:absolute;top:8px;left:8px;width:8px;height:8px;border-radius:50%;background:var(--toast)}
+.savebar{position:sticky;bottom:0;margin-top:4px;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:12px 12px calc(12px + env(safe-area-inset-bottom,0px)) 16px;background:var(--panel);border:2px solid var(--line);border-bottom:0;border-radius:20px 20px 0 0;
+  box-shadow:0 -6px 18px rgba(58,36,20,.14)}
+.savebar span{font-weight:800;color:var(--muted);font-size:.9rem}
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<main class="admin">
+  <header class="admin-head">
+    <div><p class="eyebrow">Panel de la arepera</p><h1>Disponibilidad</h1></div>
+    <div class="head-actions">
+      <a class="pill" href="/">Ver la app</a>
+      <button class="pill" id="logout" type="button" hidden>Salir</button>
+    </div>
+  </header>
+
+  <section class="card" id="lock">
+    <form id="loginForm" novalidate>
+      <h2>Entrar al panel</h2>
+      <p>Escribe la contraseña para marcar lo que está agotado.</p>
+      <label for="pw">Contraseña</label>
+      <input id="pw" type="password" autocomplete="current-password">
+      <button class="btn" type="submit" id="loginBtn">Entrar</button>
+      <p class="err" id="pwErr" aria-live="polite"></p>
+    </form>
+  </section>
+
+  <section id="panel" hidden>
+    <p class="msg" id="msg" aria-live="polite"></p>
+    <p class="help">Toca un producto para marcarlo agotado o disponible. Los clientes lo ven apenas guardas.</p>
+    <div class="summary" id="summary"></div>
+    <div id="stockList"></div>
+    <div class="savebar">
+      <span id="pendingTxt">Sin cambios por guardar</span>
+      <button class="btn" id="save" type="button" disabled>Guardar cambios</button>
+    </div>
+  </section>
+</main>
+
+<script src="/menu.js"></script>
+<script>
+const {CATS, DRINK_GROUPS} = window.MENU;
+const $ = id=>document.getElementById(id);
+const ss = {
+  get(k){ try{ return sessionStorage.getItem(k); }catch(_){ return null; } },
+  set(k,v){ try{ sessionStorage.setItem(k,v); }catch(_){} },
+  del(k){ try{ sessionStorage.removeItem(k); }catch(_){} },
+};
+
+const GROUPS = [
+  ...CATS.map(c=>({name:c.name, items:c.items.map(i=>({id:i.id, name:i.name, img:`/img/${i.id}-mini.webp`}))})),
+  ...DRINK_GROUPS.map(g=>({name:g.name, items:g.items.map(d=>({id:d.id, name:d.name, img:`/img/${d.img}.webp`}))})),
+];
+const TOTAL = GROUPS.reduce((s,g)=>s+g.items.length,0);
+
+let password = "";
+let saved = new Set();   // lo que está guardado
+let draft = new Set();   // lo que se está editando
+let busy = false;
+
+/* Habla con /api/stock; la contraseña se revisa en el servidor */
+async function api(body){
+  let r;
+  try{
+    r = await fetch("/api/stock", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)});
+  }catch(_){
+    throw Object.assign(new Error("No hay conexión. Revisa tu internet e intenta de nuevo."), {status:0});
+  }
+  const data = await r.json().catch(()=>({}));
+  if(!r.ok) throw Object.assign(new Error(data.error || "No se pudo completar. Intenta de nuevo."), {status:r.status});
+  return data;
+}
+
+function msg(text, bad){ const m = $("msg"); m.textContent = text; m.classList.toggle("bad", !!bad); }
+function changed(){ let n = 0; new Set([...draft, ...saved]).forEach(id=>{ if(draft.has(id)!==saved.has(id)) n++; }); return n; }
+
+function stockRow(it){
+  const out = draft.has(it.id), diff = out!==saved.has(it.id);
+  return `<button class="stock${out?" is-out":""}${diff?" changed":""}" type="button" role="switch" aria-checked="${!out}" data-stock="${it.id}">
+    <span class="sth"><img src="${it.img}" alt=""></span>
+    <span class="sname">${it.name}</span>
+    <span class="sstate">${out?"Agotado":"Disponible"}</span>
+    <span class="knob" aria-hidden="true"></span>
+  </button>`;
+}
+function render(){
+  $("stockList").innerHTML = GROUPS.map(g=>`<h3 class="group">${g.name}</h3><div class="stock-grid">${g.items.map(stockRow).join("")}</div>`).join("");
+  const out = draft.size;
+  $("summary").innerHTML = `<span>${TOTAL-out} disponibles</span>${out?`<span class="bad">${out} agotado${out===1?"":"s"}</span>`:""}`;
+  const n = changed();
+  $("pendingTxt").textContent = busy ? "Guardando…" : n ? (n===1 ? "1 cambio sin guardar" : `${n} cambios sin guardar`) : "Sin cambios por guardar";
+  $("save").disabled = busy || n===0;
+}
+
+function showPanel(list){
+  saved = new Set(list || []); draft = new Set(saved);
+  $("lock").hidden = true; $("panel").hidden = false; $("logout").hidden = false;
+  render();
+}
+function logout(text){
+  password = ""; ss.del("arepa-admin");
+  $("panel").hidden = true; $("lock").hidden = false; $("logout").hidden = true;
+  $("pw").value = ""; $("pwErr").textContent = text || "";
+  msg("");
+}
+
+async function login(p, quiet){
+  $("loginBtn").disabled = true;
+  try{
+    const data = await api({password:p});
+    password = p; ss.set("arepa-admin", p);
+    $("pwErr").textContent = "";
+    showPanel(data.agotado);
+  }catch(err){
+    logout(quiet && err.status===401 ? "" : err.message);
+  }
+  $("loginBtn").disabled = false;
+}
+
+$("loginForm").addEventListener("submit", e=>{
+  e.preventDefault();
+  const p = $("pw").value;
+  if(!p){ $("pwErr").textContent = "Escribe la contraseña."; return; }
+  $("pwErr").textContent = "Revisando…";
+  login(p, false);
+});
+
+$("stockList").addEventListener("click", e=>{
+  const b = e.target.closest(".stock"); if(!b || busy) return;
+  const id = b.dataset.stock;
+  if(draft.has(id)) draft.delete(id); else draft.add(id);
+  msg(""); render();
+});
+
+$("save").addEventListener("click", async ()=>{
+  busy = true; render();
+  try{
+    const data = await api({password, agotado:[...draft]});
+    saved = new Set(data.agotado || []); draft = new Set(saved);
+    msg("Guardado. Los clientes ya ven los cambios.");
+  }catch(err){
+    if(err.status===401) logout("La contraseña cambió. Vuelve a entrar.");
+    else msg(err.message, true);
+  }
+  busy = false; render();
+});
+
+$("logout").addEventListener("click", ()=>{
+  if(changed() && !$("save").dataset.armed){
+    $("save").dataset.armed = "1";
+    msg("Tienes cambios sin guardar. Toca Salir otra vez para salir sin guardarlos.", true);
+    setTimeout(()=>{ delete $("save").dataset.armed; }, 4000);
+    return;
+  }
+  delete $("save").dataset.armed;
+  logout("");
+});
+window.addEventListener("beforeunload", e=>{ if(password && changed()){ e.preventDefault(); e.returnValue = ""; } });
+
+/* Si ya entró en esta pestaña, vuelve al panel sin pedir la contraseña */
+const remembered = ss.get("arepa-admin");
+if(remembered) login(remembered, true);
+</script>
+</body>
+</html>
