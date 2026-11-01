@@ -8,8 +8,17 @@ const MENU = require("../menu.js");
 
 const IDS = new Set(MENU.ALL_IDS);
 const KEY = "arepa:agotado";
-const DB_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-const DB_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+// Vercel puede ponerle un prefijo a las variables al conectar Upstash (ej. STORAGE_KV_REST_API_URL), así que se buscan por el final del nombre
+function findEnv(endings) {
+  for (const end of endings) {
+    if (process.env[end]) return process.env[end];
+    const key = Object.keys(process.env).find((k) => k.endsWith("_" + end) && process.env[k]);
+    if (key) return process.env[key];
+  }
+  return "";
+}
+const DB_URL = findEnv(["KV_REST_API_URL", "UPSTASH_REDIS_REST_URL"]);
+const DB_TOKEN = findEnv(["KV_REST_API_TOKEN", "UPSTASH_REDIS_REST_TOKEN"]);
 
 async function redis(command) {
   const r = await fetch(DB_URL, {
